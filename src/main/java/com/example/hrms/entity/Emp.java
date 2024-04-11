@@ -2,20 +2,144 @@ package com.example.hrms.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
-
-@Data
+@Entity
+@Table(name="emp")
 public class Emp {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="emp_no", nullable = false)
 	private Integer empNo;
-	private String name;
-	private Integer deptNo;
+	@Column(name="ename", nullable = false)
+	private String ename;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "dept_no", nullable = false)
+	private Dept dept; // 正確關聯到Dept類
+
+	@Column(name="job", nullable = false)
 	private String job;
+	@Column(name="email", nullable = false)
 	private String email;
+	@Column(name="phone_number", nullable = false)
+	private Integer phoneNumber;
+	@Column(name="address", nullable = false)
+	private String address;
+	@Column(name="hiredate", nullable = false)
 	private LocalDateTime hiredate;
+	@Column(name="sal", nullable = false)
 	private Integer sal;
+	@Column(name="created_at", nullable = false)
 	private LocalDateTime createdAt;
+	@Column(name="updated_at", nullable = false)
 	private LocalDateTime updatedAt;
-	
+
+	public Emp() {
+	}
+
+	public Integer getEmpNo() {
+		return empNo;
+	}
+
+	public void setEmpNo(Integer empNo) {
+		this.empNo = empNo;
+	}
+
+	public String getEname() {
+		return ename;
+	}
+
+	public void setEname(String ename) {
+		this.ename = ename;
+	}
+
+	public Dept getDept() {
+		return dept;
+	}
+
+	public void setDept(Dept dept) {
+		this.dept = dept;
+	}
+
+	public String getJob() {
+		return job;
+	}
+
+	public void setJob(String job) {
+		this.job = job;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Integer getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(Integer phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public LocalDateTime getHiredate() {
+		return hiredate;
+	}
+
+	public void setHiredate(LocalDateTime hiredate) {
+		this.hiredate = hiredate;
+	}
+
+	public Integer getSal() {
+		return sal;
+	}
+
+	public void setSal(Integer sal) {
+		this.sal = sal;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	@Override
+	public String toString() {
+		return "Emp{" +
+				"empNo=" + empNo +
+				", ename='" + ename + '\'' +
+				", deptNo=" + (dept!=null? dept.getDeptNo():"null") +
+				", job='" + job + '\'' +
+				", email='" + email + '\'' +
+				", phoneNumber=" + phoneNumber +
+				", address='" + address + '\'' +
+				", hiredate=" + hiredate +
+				", sal=" + sal +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				'}';
+	}
 }
