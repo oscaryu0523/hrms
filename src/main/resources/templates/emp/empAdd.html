@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+        .container table{
+            width:100%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse:collapse;
+            margin-top: 20px;
+        }
+        .container th, td{
+            text-align: center;
+            padding :8px;
+            border:1px solid #ddd;
+        }
+        .container th{
+            background-color: #f2f2f2;
+        }
+        .container a{
+            margin:10px;
+        }
+        .container caption{
+            caption-side: top;
+            font-size: larger;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .flex-container{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .add-btn{
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div>
+        <h2>神通人力資源管理系統</h2>
+    </div>
+    <div>
+        <a th:href="@{/index.html}">首頁</a>
+        <a th:href="@{/emp/deptList}">員工管理</a>
+        <a th:href="@{/dept.html}">部門管理</a>
+        <a th:href="@{/permission.html}">權限管理</a>
+        <a th:href="@{/userPermission.html}">用戶權限管理</a>
+        <a th:href="@{/login.html}">登入/註冊</a>
+    </div>
+</div>
+<div class="container">
+    <h3>新增員工資料</h3>
+    <hr>
+    <form th:action="@{/emp/save}" th:object="${empDto}" method="post">
+        <table>
+            <tr>
+                <th><label for="ename">姓名:</label></th>
+                <td><input type="text" id="ename" th:field="${empDto.ename}" required></td>
+            </tr>
+            <tr>
+                <th><label for="dept">部門:</label></th>
+                <td>
+                    <select id="dept" th:field="${empDto.deptNo}">
+                        <option value="" disabled selected>請選擇部門</option>
+                        <option th:each="dept : ${depts}" th:value="${dept.getDeptNo()}" th:text="${dept.getDname()}"></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="job">職位:</label></th>
+                <td><input type="text" id="job" th:field="${empDto.job}" required></td>
+            </tr>
+            <tr>
+                <th><label for="email">電子郵件:</label></th>
+                <td><input type="email" id="email" th:field="${empDto.email}" required></td>
+            </tr>
+            <tr>
+                <th><label for="phone">電話號碼:</label></th>
+                <td><input type="tel" id="phone" th:field="${empDto.phoneNumber}" required></td>
+            </tr>
+            <tr>
+                <th><label for="address">地址:</label></th>
+                <td><input type="text" id="address" th:field="${empDto.address}" required></td>
+            </tr>
+            <tr>
+                <th><label for="hiredate">到職日:</label></th>
+                <td><input type="date" id="hiredate" th:field="${empDto.hiredate}" required></td>
+            </tr>
+            <tr>
+                <th><label for="sal">薪水:</label></th>
+                <td><input type="number" id="sal" th:field="${empDto.sal}" required></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">新增資料</button></td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

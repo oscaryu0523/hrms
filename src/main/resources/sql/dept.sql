@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS `dept` (
+    `dept_no` VARCHAR(20) NOT NULL primary key,
+    `dname` VARCHAR(50) NOT NULL,
+    `location` VARCHAR(40),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );

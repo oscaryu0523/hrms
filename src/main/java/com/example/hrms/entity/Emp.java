@@ -2,6 +2,8 @@ package com.example.hrms.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 @Entity
@@ -16,6 +18,7 @@ public class Emp {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "dept_no", nullable = false)
+	@JsonBackReference
 	private Dept dept; // 正確關聯到Dept類
 
 	@Column(name="job", nullable = false)
@@ -23,17 +26,28 @@ public class Emp {
 	@Column(name="email", nullable = false)
 	private String email;
 	@Column(name="phone_number", nullable = false)
-	private Integer phoneNumber;
+	private String phoneNumber;
 	@Column(name="address", nullable = false)
 	private String address;
 	@Column(name="hiredate", nullable = false)
 	private LocalDateTime hiredate;
 	@Column(name="sal", nullable = false)
 	private Integer sal;
-	@Column(name="created_at", nullable = false)
+	@Column(name="created_at", nullable = false,updatable = false)
 	private LocalDateTime createdAt;
 	@Column(name="updated_at", nullable = false)
 	private LocalDateTime updatedAt;
+
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
 
 	public Emp() {
 	}
@@ -78,11 +92,11 @@ public class Emp {
 		this.email = email;
 	}
 
-	public Integer getPhoneNumber() {
+	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
-	public void setPhoneNumber(Integer phoneNumber) {
+	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
