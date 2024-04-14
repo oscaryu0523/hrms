@@ -1,24 +1,26 @@
 package com.example.hrms.dto;
 
 import org.antlr.v4.runtime.misc.NotNull;
+//import jakarta.validation.constraints.NotNull;
+import java.sql.Date;
+import java.time.LocalDate;
 
-import java.time.LocalDateTime;
 
 public class EmpDto {
-    @NotNull
+
     private String ename;
-    @NotNull
+
     private Integer deptNo; // 正確關聯到Dept類
-    @NotNull
+
     private String job;
-    @NotNull
+
     private String email;
-    @NotNull
+
     private String phoneNumber;
-    @NotNull
+
     private String address;
-    @NotNull
-    private LocalDateTime hiredate;
+
+    private Date hiredate;
 
     public Integer getDeptNo() {
         return deptNo;
@@ -78,11 +80,11 @@ public class EmpDto {
         this.address = address;
     }
 
-    public LocalDateTime getHiredate() {
+    public Date getHiredate() {
         return hiredate;
     }
 
-    public void setHiredate(LocalDateTime hiredate) {
+    public void setHiredate(Date hiredate) {
         this.hiredate = hiredate;
     }
 

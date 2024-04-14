@@ -34,15 +34,15 @@ public class ApiEmpController {
 //        return new ResponseEntity<>(savedEmp, HttpStatus.CREATED);
 //    }
 //    刪除一筆員工資料
-    @DeleteMapping("/{empNo}")
-    public ResponseEntity<Void> deleteEmp(@PathVariable Integer empNo) {
-        if(!empService.existsById(empNo)){
-            log.warn("該員工資料不存在{}",empNo);
-            return ResponseEntity.notFound().build();
-        }
-        empService.deleteEmp(empNo);
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/{empNo}")
+//    public ResponseEntity<Void> deleteEmp(@PathVariable Integer empNo) {
+//        if(!empService.existsById(empNo)){
+//            log.warn("該員工資料不存在{}",empNo);
+//            return ResponseEntity.notFound().build();
+//        }
+//        empService.deleteEmp(empNo);
+//        return ResponseEntity.noContent().build();
+//    }
 ////    更新一筆員工資料
 //    @PutMapping("")
 //    public ResponseEntity<Emp> updateEmp(@RequestBody Emp emp) {

@@ -1,5 +1,7 @@
 package com.example.hrms.entity;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -30,7 +32,7 @@ public class Emp {
 	@Column(name="address", nullable = false)
 	private String address;
 	@Column(name="hiredate", nullable = false)
-	private LocalDateTime hiredate;
+	private Date hiredate;
 	@Column(name="sal", nullable = false)
 	private Integer sal;
 	@Column(name="created_at", nullable = false,updatable = false)
@@ -108,11 +110,11 @@ public class Emp {
 		this.address = address;
 	}
 
-	public LocalDateTime getHiredate() {
+	public Date getHiredate() {
 		return hiredate;
 	}
 
-	public void setHiredate(LocalDateTime hiredate) {
+	public void setHiredate(Date hiredate) {
 		this.hiredate = hiredate;
 	}
 

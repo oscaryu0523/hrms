@@ -1,119 +1,114 @@
 package com.example.hrms.controller;
 
 
-import com.example.hrms.controller.api.ApiEmpController;
 import com.example.hrms.dto.EmpDto;
-import com.example.hrms.entity.Dept;
 import com.example.hrms.entity.Emp;
 import com.example.hrms.service.EmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/emp")
 public class EmpController {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiEmpController.class);
+    private static final Logger log = LoggerFactory.getLogger(EmpController.class);
 
     @Autowired
     private EmpService empService;
 
-//    //    根據部門編號查詢員工列表
-//    @GetMapping("/dept/{deptNo}")
-//    public String getEmpsByDept(@PathVariable Integer deptNo, Model model) {
-//        try {
-//            List<Emp> emps = empService.getEmpsByDept(deptNo);
-//            if (emps.isEmpty()) {
-//                model.addAttribute("message", "該部門編號 " + deptNo + " 沒有找到員工。");
-//                return "emp/noEmployees";  // 假設有一個noEmployees.html模板
-//            }
-//            model.addAttribute("emps", emps);
-//            return "empList";
-//        } catch (Exception e) {
-//            log.error("發生意外錯誤", e);
-//            model.addAttribute("errorMessage", "發生意外錯誤：" + e.getMessage());
-//            return "error/generalError";
-//        }
-//    }
-//
-////    新增一筆員工資料
-//    @PostMapping
-//    public String addEmp(@RequestBody EmpDto empRequest, Model model){
-//        try {
-//            Emp savedEmp = empService.addEmp(empRequest).stream().findFirst().orElse(null);
-//            return "redirect:/emp/empList.html";
-//        }catch(Exception e){
-//            log.error("");
-//            return "redirect:/emp/empList.html";
-//        }
-//    }
-////    更新一筆員工資料 進入員工列表
-//    @PostMapping("/update/{empNo}")
-//    public String updateEmp(@RequestBody EmpDto empDto, @PathVariable Integer empNo, Model model){
-//        try {
-//            Emp emp = empService.updateEmp(empDto, empNo).stream().findFirst().orElse(null);
-//            return "redirect:/emp/empList";
-//        }catch (Exception e){
-//            log.error("");
-//        }
-//    }
-
-
-
+//    刪除一筆員工資料，重導至員工列表
+    @GetMapping("/delete/{empNo}")
+    public String deleteEmp(@PathVariable("empNo") Integer empNo) {
+        return empService.deleteEmp(empNo)
+                .map(e -> {
+                    log.info("Deleted employee with ID: {}", empNo);
+                    return "redirect:/emp";
+                }) // 如果存在且成功刪除，重導至員工列表頁
+                .orElse("error"); // 如果無法刪除（例如員工不存在），則返回錯誤頁面
+    }
+    //  更新一筆員工資料，重導至員工列表
+    @PostMapping("/update")
+    public String updateEmp(@ModelAttribute("empDto") Emp emp, Model model){
+        return empService.updateEmp(emp)
+                .map(updatedEmp -> "redirect:/emp")
+                .orElseGet(() -> {
+                  model.addAttribute("error","更新失敗或郵箱已被使用");
+                  return "error";
+                });
+    }
 
     //    進入編輯頁面  查詢一筆員工資料
+    // 編輯員工資料
     @GetMapping("/edit/{empNo}")
-    public String getEmp(@PathVariable Integer empNo, Model model) {
-        try {
-//        用員工編號查詢一筆員工物件，如果查得到返回物件，查不到返回null
-            List<Dept> depts = empService.getDepts();
-            Emp emp = empService.findById(empNo).orElse(null);
-            if (emp == null) {
-                log.warn("No employee found with ID: {}", empNo);
-                return "emp/notFound";
-            }
-//        將物件存入model中
-            model.addAttribute("emp", emp);
-            model.addAttribute("depts",depts);
-//        跳轉至detail頁面
-            return "emp/empEdit";
-        } catch (DataAccessException e) {
-            log.error("Database access error while retrieving employee", e);
-            return "error/databaseError";  // 假設有一個databaseError.html模板
-        }
+    public String editEmp(@PathVariable Integer empNo, Model model) {
+        return empService.findById(empNo)
+                .map(emp -> {//empService.findById(empNo)不為空的情況才執行
+                    model.addAttribute("emp", emp);
+                    model.addAttribute("depts", empService.getDepts());
+                    return "emp/empEdit";
+                })
+                .orElseGet(() -> {//empService.findById(empNo)為空的情況執行
+                    log.warn("No employee found with ID: {}", empNo);
+                    model.addAttribute("error", "No employee found.");
+                    return "error";
+                });
     }
+
+
+//  新增一筆員工資料，重導至員工列表
+    @PostMapping("/save")
+    public String saveEmp(@ModelAttribute("empDto") EmpDto empDto, Model model) {
+        return empService.saveEmp(empDto)
+                .map( emp -> {
+                    log.info("Created new employee with ID: {}", emp.getEmpNo());
+                    return "redirect:/emp";
+                })
+                .orElseGet(() -> {
+                    model.addAttribute("error","存在重複的電子郵件或部門不存在，請檢查");
+                    return "redirect:/error";
+                });
+
+    }
+
 
 //    進入新增頁面
     @GetMapping("/add")
     public String addEmp(Model model) {
-        List<Dept> depts = empService.getDepts();
-        model.addAttribute("depts",depts);
-        EmpDto empDto = new EmpDto();
-        model.addAttribute("empDto", empDto);
+        model.addAttribute("depts",empService.getDepts());
+        model.addAttribute("empDto", new EmpDto());
         return "emp/empAdd";
     }
 
     //    員工總列表 完成
     @GetMapping
     public String getEmps(Model model) {
+
+            model.addAttribute("emps",empService.getEmps());
+            model.addAttribute("depts",empService.getDepts());
+            return "/emp/empList";
+    }
+
+    //    員工複合查詢  員工列表 完成
+    @PostMapping("/search")
+    public String searchEmps(@RequestParam("deptNo") Optional<Integer> deptNo,
+                             @RequestParam("keyword") Optional<String> keyword,
+                             Model model) {
         try {
-            List<Emp> emps = empService.getEmps();
-            List<Dept> depts = empService.getDepts();
-            model.addAttribute("emps",emps);
-            model.addAttribute("depts",depts);
+            model.addAttribute("emps",empService.searchEmps(deptNo, keyword));
+            model.addAttribute("depts",empService.getDepts());
             return "/emp/empList";
         }catch(Exception e){
             log.error("發生意外錯誤", e);
             model.addAttribute("errorMessage","發生意外錯誤"+e.getMessage());
         }
-        return "error";
+        return "emp/error";
     }
 
 }

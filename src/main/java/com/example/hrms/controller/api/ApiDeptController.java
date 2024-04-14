@@ -13,16 +13,16 @@ public class ApiDeptController {
     @Autowired
     private DeptService deptService;
 //    新增一筆部門資料
-    @PostMapping
-    public ResponseEntity<Dept> addDept(@RequestBody Dept dept){
-        if(deptService.existsById(dept.getDeptNo())){
-            System.out.println("該部門已存在");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-        }else{
-            Dept saveDept=deptService.addDept(dept);
-            return new ResponseEntity<>(saveDept, HttpStatus.CREATED);
-        }
-    }
+//    @PostMapping
+//    public ResponseEntity<Dept> addDept(@RequestBody Dept dept){
+//        if(deptService.existsById(dept.getDeptNo())){
+//            System.out.println("該部門已存在");
+//            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+//        }else{
+//            Dept saveDept=deptService.addDept(dept);
+//            return new ResponseEntity<>(saveDept, HttpStatus.CREATED);
+//        }
+//    }
 //    刪除一筆部門資料
 //    @DeleteMapping("/{deptNo}")
 //    public ResponseEntity<Void> deleteDept(@PathVariable Integer deptNo){
