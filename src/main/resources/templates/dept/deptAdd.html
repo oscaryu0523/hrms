@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+        .container table{
+            width:40%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse:collapse;
+            margin-top: 20px;
+        }
+        .container th, td{
+            text-align: center;
+            padding :8px;
+            border:1px solid #ddd;
+        }
+        .container th{
+            background-color: #f2f2f2;
+        }
+        .container a{
+            margin:10px;
+        }
+        .container caption{
+            caption-side: top;
+            font-size: larger;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .flex-container{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .add-btn{
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div>
+        <h2>神通人力資源管理系統</h2>
+    </div>
+    <div>
+        <a th:href="@{/index.html}">首頁</a>
+        <a th:href="@{/emp}">員工管理</a>
+        <a th:href="@{/dept}">部門管理</a>
+        <a th:href="@{/permission.html}">權限管理</a>
+        <a th:href="@{/userPermission.html}">用戶權限管理</a>
+        <a th:href="@{/login.html}">登入/註冊</a>
+    </div>
+</div>
+<div class="container">
+    <h3>新增員工資料</h3>
+    <hr>
+    <form th:action="@{/dept/save}" th:object="${deptDto}" method="post">
+        <table>
+            <tr>
+                <th><label for="deptNo">部門編號</label></th>
+                <td><input type="text" id="deptNo" th:field="${deptDto.deptNo}" required></td>
+            </tr>
+            <tr>
+                <th><label for="dname">部門名稱:</label></th>
+                <td><input type="text" id="dname" th:field="${deptDto.dname}" required></td>
+            </tr>
+            <tr>
+                <th><label for="location">地點:</label></th>
+                <td><input type="text" id="location" th:field="${deptDto.location}" required></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">新增資料</button></td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

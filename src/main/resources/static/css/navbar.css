@@ -1,0 +1,20 @@
+.navbar {
+    background-color: #007bff;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+}
+.navbar h2{
+    margin-left: 30px;
+}
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+.navbar a:hover {
+    background-color: #007ab3;
+}

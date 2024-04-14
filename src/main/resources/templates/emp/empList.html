@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+
+<script>
+    $(document).ready(function() {
+        $(".delete-btn").on("click", function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).attr('href');
+            if (confirm("確定要刪除")) {
+                window.location.href = deleteUrl;
+            }
+        });
+    });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+    }
+    h1 {
+        color: #333;
+    }
+    .container table{
+        width:100%;
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse:collapse;
+        margin-top: 20px;
+    }
+    .container th, td{
+        text-align: center;
+        padding :8px;
+        border:1px solid #ddd;
+    }
+    .container th{
+        background-color: #f2f2f2;
+    }
+    .container a{
+        margin:10px;
+    }
+    .container caption{
+        caption-side: top;
+        font-size: larger;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .flex-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .add-btn{
+        margin-right: 30px;
+    }
+
+
+</style>
+</head>
+<body>
+<div class="navbar">
+    <div>
+        <h2>神通人力資源管理系統</h2>
+    </div>
+    <div>
+        <a th:href="@{/index.html}">首頁</a>
+        <a th:href="@{/emp}">員工管理</a>
+        <a th:href="@{/dept}">部門管理</a>
+        <a th:href="@{/permission.html}">權限管理</a>
+        <a th:href="@{/userPermission.html}">用戶權限管理</a>
+        <a th:href="@{/login.html}">登入/註冊</a>
+    </div>
+</div>
+
+<div class="container">
+    <h3>員工管理系統</h3>
+    <hr>
+    <div class="flex-container">
+        <!-- 查詢表單 -->
+        <form method="post" th:action="@{/emp/search}">
+            <!-- 關鍵字查詢 -->
+            <label for="keyword">關鍵字:</label>
+            <input type="text" id="keyword" name="keyword" placeholder="請輸入關鍵字">
+            <!-- 分類篩選 -->
+            <label for="deptNo">部門分類</label>
+            <select id="deptNo" name="deptNo">
+                <option value="">所有部門</option>
+                <option th:each="dept : ${depts}" th:value="${dept.getDeptNo()}" th:text="${dept.getDname()}"></option>
+            </select>
+            <input type="submit" value="查詢">
+        </form>
+
+        <!--  -->
+<!--        新增員工-->
+        <a th:href="@{/emp/add}">新增員工</a>
+    </div>
+    <!-- 員工表單列表 -->
+    <table>
+<!--        <caption>監控技術部</caption>-->
+        <thead>
+        <tr>
+            <th>員工編號</th>
+            <th>姓名</th>
+            <th>部門</th>
+            <th>職位</th>
+            <th>電子郵件</th>
+            <th>電話號碼</th>
+            <th>地址</th>
+            <th>到職日</th>
+            <th>薪水</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody th:each="emp : ${emps}">
+        <!-- 員工資料 -->
+        <tr>
+            <td th:text="${emp.empNo}">J927</td>
+            <td th:text="${emp.ename}">余銘修</td>
+            <td th:text="${emp.dept.dname}">監控技術部</td>
+            <td th:text="${emp.job}">工程師</td>
+            <td th:text="${emp.email}">z5314888@gmail.com</td>
+            <td th:text="${emp.phoneNumber}">0226576666</td>
+            <td th:text="${emp.address}">台北市內湖區堤頂大道二段187號</td>
+            <td th:text="${emp.hiredate}"></td>
+            <td th:text="${emp.sal}">70000</td>
+            <td><a th:href="@{/emp/edit/{empNo}(empNo=${emp.empNo})}">編輯</a><a class="delete-btn" th:href="@{/emp/delete/{empNo}(empNo=${emp.empNo})}">刪除</a></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+</div>
+</body>
+</html>

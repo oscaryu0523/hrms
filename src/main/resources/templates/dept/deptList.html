@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+
+<script>
+    $(document).ready(function() {
+        $(".delete-btn").on("click", function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).attr('href');
+            if (confirm("確定要刪除")) {
+                window.location.href = deleteUrl;
+            }
+        });
+    });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+    }
+    h1 {
+        color: #333;
+    }
+    .container table{
+        width:70%;
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse:collapse;
+        margin-top: 20px;
+    }
+    .container th, td{
+        text-align: center;
+        padding :8px;
+        border:1px solid #ddd;
+    }
+    .container th{
+        background-color: #f2f2f2;
+    }
+    .container a{
+        margin:10px;
+    }
+    .container caption{
+        caption-side: top;
+        font-size: larger;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .flex-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .add-btn{
+        margin-left: auto;
+    }
+
+
+</style>
+</head>
+<body>
+<div class="navbar">
+    <div>
+        <h2>神通人力資源管理系統</h2>
+    </div>
+    <div>
+        <a th:href="@{/index.html}">首頁</a>
+        <a th:href="@{/emp}">員工管理</a>
+        <a th:href="@{/dept}">部門管理</a>
+        <a th:href="@{/permission.html}">權限管理</a>
+        <a th:href="@{/userPermission.html}">用戶權限管理</a>
+        <a th:href="@{/login.html}">登入/註冊</a>
+    </div>
+</div>
+
+<div class="container">
+    <h3>部門管理系統</h3>
+    <hr>
+    <div class="flex-container">
+        <div> </div>
+<!--        新增部門-->
+        <a class="add-btn" th:href="@{/dept/add}">新增部門</a>
+    </div>
+    <!-- 部門表單列表 -->
+    <table>
+        <caption>部門總列表</caption>
+        <thead>
+        <tr>
+            <th>部門編號</th>
+            <th>部門名稱</th>
+            <th>地點</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody th:each="dept : ${depts}">
+        <!-- 部門資料 -->
+        <tr>
+            <td th:text="${dept.deptNo}">20</td>
+            <td th:text="${dept.dname}">人事部</td>
+            <td th:text="${dept.location}">信義</td>
+            <td><a th:href="@{/dept/edit/{deptNo}(deptNo=${dept.deptNo})}">編輯</a><a class="delete-btn" th:href="@{/dept/delete/{deptNo}(deptNo=${dept.deptNo})}">刪除</a></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+</div>
+</body>
+</html>
