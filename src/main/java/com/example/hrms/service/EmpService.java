@@ -1,5 +1,6 @@
 package com.example.hrms.service;
 
+import com.example.hrms.dto.DeptDto;
 import com.example.hrms.dto.EmpDto;
 import com.example.hrms.entity.Dept;
 import com.example.hrms.entity.Emp;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmpService {
@@ -34,16 +36,17 @@ public class EmpService {
 
     //    更新一筆員工資料
     @Transactional
-    public Optional<Emp> updateEmp(Emp emp) {
+    public Optional<Emp> updateEmp(EmpDto empDto) {
 //        檢查員工編號是否存在
-        return empRepository.findById(emp.getEmpNo()).map(existingEmp -> {
+        return empRepository.findById(empDto.getEmpNo())
+                .map(existingEmp -> {
 //            檢查mail是否已被使用
-            if(empRepository.existsByEmailAndEmpNoNot(emp.getEmail(),emp.getEmpNo())){
-                log.warn("郵箱{}已被使用", emp.getEmail());
-                return null;
-            }
-            return empRepository.save(emp);
-        });
+                    if(empRepository.existsByEmailAndEmpNoNot(empDto.getEmail(),empDto.getEmpNo())){
+                        log.warn("郵箱{}已被使用", empDto.getEmail());
+                        return null;
+                    }
+                    return empRepository.save(dtoToEntity(empDto));
+                });
 
     }
 
@@ -92,18 +95,61 @@ public class EmpService {
         }
     }
 //    用員工編號取得一筆員工資料
-    public Optional<Emp> findById(Integer empNo) {
-        return empRepository.findById(empNo);
+    public Optional<EmpDto> findById(Integer empNo) {
+        return empRepository.findById(empNo)
+                .map(this::entityToDto);
     }
 
 
 //    獲取所有員工列表
-    public List<Emp> getEmps() {
-        return empRepository.findAll();
+    public List<EmpDto> getEmps() {
+        return empRepository.findAll()
+                .stream()
+                .map(this::entityToDto)
+                .collect(Collectors.toList());
     }
 //    獲取所有部門列表
-    public List<Dept> getDepts() {
-        return deptRepository.findAll();
+    public List<DeptDto> getDepts() {
+        return deptRepository.findAll()
+                .stream()
+                .map(this::deptEntityToDto)
+                .collect(Collectors.toList());
     }
+
+    private Emp dtoToEntity(EmpDto empDto) {
+        Emp emp = new Emp();
+        emp.setEmpNo(empDto.getEmpNo());
+        emp.setEname(empDto.getEname());
+        emp.setDept(deptRepository.findById(empDto.getDeptNo()).get());
+        emp.setJob(empDto.getJob());
+        emp.setEmail(empDto.getEmail());
+        emp.setPhoneNumber(empDto.getPhoneNumber());
+        emp.setAddress(empDto.getAddress());
+        emp.setSal(empDto.getSal());
+        emp.setHiredate(empDto.getHiredate());
+        return emp;
+    }
+    private EmpDto entityToDto(Emp emp){
+        EmpDto empDto = new EmpDto();
+        empDto.setEmpNo(emp.getEmpNo());
+        empDto.setEname(emp.getEname());
+        empDto.setDname(emp.getDept().getDname());
+        empDto.setDeptNo(emp.getDept().getDeptNo());
+        empDto.setJob(emp.getJob());
+        empDto.setEmail(emp.getEmail());
+        empDto.setPhoneNumber(emp.getPhoneNumber());
+        empDto.setAddress(emp.getAddress());
+        empDto.setSal(emp.getSal());
+        empDto.setHiredate(emp.getHiredate());
+        return empDto;
+    }
+    private DeptDto deptEntityToDto(Dept dept){
+        DeptDto deptDto = new DeptDto();
+        deptDto.setDeptNo(dept.getDeptNo());
+        deptDto.setDname(dept.getDname());
+        deptDto.setLocation(dept.getLocation());
+        return deptDto;
+    }
+
 
 }

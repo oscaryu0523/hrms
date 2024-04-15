@@ -4,14 +4,18 @@ package com.example.hrms.controller;
 import com.example.hrms.dto.EmpDto;
 import com.example.hrms.entity.Emp;
 import com.example.hrms.service.EmpService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -35,8 +39,13 @@ public class EmpController {
     }
     //  更新一筆員工資料，重導至員工列表
     @PostMapping("/update")
-    public String updateEmp(@ModelAttribute("empDto") Emp emp, Model model){
-        if(empService.updateEmp(emp).isPresent()){
+    public String updateEmp(Model model,@Valid @ModelAttribute("empDto") EmpDto empDto, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("empDto", empDto);
+            model.addAttribute("depts",empService.getDepts());
+            return "/emp/empEdit";
+        }
+        if(empService.updateEmp(empDto).isPresent()){
             return "redirect:/emp";
         }
         model.addAttribute("error","更新失敗或郵箱已被使用");
@@ -48,8 +57,8 @@ public class EmpController {
     @GetMapping("/edit/{empNo}")
     public String editEmp(@PathVariable Integer empNo, Model model) {
         return empService.findById(empNo)
-                .map(emp -> {//empService.findById(empNo)不為空的情況才執行
-                    model.addAttribute("emp", emp);
+                .map(empDto -> {//empService.findById(empNo)不為空的情況才執行
+                    model.addAttribute("empDto", empDto);
                     model.addAttribute("depts", empService.getDepts());
                     return "emp/empEdit";
                 })
@@ -63,10 +72,22 @@ public class EmpController {
 
 //  新增一筆員工資料，重導至員工列表
     @PostMapping("/save")
-    public String saveEmp(@ModelAttribute("empDto") EmpDto empDto, Model model) {
+    public String saveEmp(Model model, @Valid @ModelAttribute("empDto") EmpDto empDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> allErrors = bindingResult.getAllErrors();
+            for(ObjectError error : allErrors){
+                System.out.println(error.getDefaultMessage());
+            }
+            System.out.println(bindingResult.getAllErrors());
+            model.addAttribute("empDto", empDto);
+            model.addAttribute("depts",empService.getDepts());
+            System.out.println("這裡");
+            return "/emp/empAdd";
+        }
         return empService.saveEmp(empDto)
                 .map( emp -> {
                     log.info("Created new employee with ID: {}", emp.getEmpNo());
+                    System.out.println("那裏");
                     return "redirect:/emp";
                 })
                 .orElseGet(() -> {

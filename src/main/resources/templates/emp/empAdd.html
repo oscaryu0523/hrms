@@ -48,6 +48,12 @@
         .add-btn{
             margin-right: 30px;
         }
+        .error-message {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -71,7 +77,10 @@
         <table>
             <tr>
                 <th><label for="ename">姓名:</label></th>
-                <td><input type="text" id="ename" th:field="${empDto.ename}" required></td>
+                <td>
+                    <input type="text" id="ename" th:field="${empDto.ename}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('ename')}" th:errors="*{ename}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="dept">部門:</label></th>
@@ -84,27 +93,45 @@
             </tr>
             <tr>
                 <th><label for="job">職位:</label></th>
-                <td><input type="text" id="job" th:field="${empDto.job}" required></td>
+                <td>
+                    <input type="text" id="job" th:field="${empDto.job}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('job')}" th:errors="*{job}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="email">電子郵件:</label></th>
-                <td><input type="email" id="email" th:field="${empDto.email}" required></td>
+                <td>
+                    <input type="email" id="email" th:field="${empDto.email}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="phone">電話號碼:</label></th>
-                <td><input type="tel" id="phone" th:field="${empDto.phoneNumber}" required></td>
+                <td>
+                    <input type="tel" id="phone" th:field="${empDto.phoneNumber}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="address">地址:</label></th>
-                <td><input type="text" id="address" th:field="${empDto.address}" required></td>
+                <td>
+                    <input type="text" id="address" th:field="${empDto.address}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="hiredate">到職日:</label></th>
-                <td><input type="date" id="hiredate" th:field="${empDto.hiredate}" required></td>
+                <td>
+                    <input type="date" id="hiredate" th:field="${empDto.hiredate}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('hiredate')}" th:errors="*{hiredate}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="sal">薪水:</label></th>
-                <td><input type="number" id="sal" th:field="${empDto.sal}" required></td>
+                <td>
+                    <input type="number" id="sal" th:field="${empDto.sal}" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('sal')}" th:errors="*{sal}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">新增資料</button></td>

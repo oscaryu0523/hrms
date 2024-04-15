@@ -48,6 +48,12 @@
         .add-btn{
             margin-right: 30px;
         }
+        .error-message {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -71,15 +77,24 @@
         <table>
             <tr>
                 <th><label for="deptNo">部門編號</label></th>
-                <td><input type="text" id="deptNo" th:field="${deptDto.deptNo}" required></td>
+                <td>
+                    <input type="text" id="deptNo" th:field="${deptDto.deptNo}" min="10" max="9999" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('deptNo')}" th:errors="*{deptNo}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="dname">部門名稱:</label></th>
-                <td><input type="text" id="dname" th:field="${deptDto.dname}" minlength="" maxlength="" required></td>
+                <td>
+                    <input type="text" id="dname" th:field="${deptDto.dname}" maxlength="15" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('dname')}" th:errors="*{dname}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="location">地點:</label></th>
-                <td><input type="text" id="location" th:field="${deptDto.location}" required></td>
+                <td>
+                    <input type="text" id="location" th:field="${deptDto.location}" maxlength="30" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">新增資料</button></td>
