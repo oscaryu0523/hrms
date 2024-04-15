@@ -36,12 +36,11 @@ public class EmpController {
     //  更新一筆員工資料，重導至員工列表
     @PostMapping("/update")
     public String updateEmp(@ModelAttribute("empDto") Emp emp, Model model){
-        return empService.updateEmp(emp)
-                .map(updatedEmp -> "redirect:/emp")
-                .orElseGet(() -> {
-                  model.addAttribute("error","更新失敗或郵箱已被使用");
-                  return "error";
-                });
+        if(empService.updateEmp(emp).isPresent()){
+            return "redirect:/emp";
+        }
+        model.addAttribute("error","更新失敗或郵箱已被使用");
+        return  "error";
     }
 
     //    進入編輯頁面  查詢一筆員工資料
