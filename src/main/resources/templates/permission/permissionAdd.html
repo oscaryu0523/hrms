@@ -17,7 +17,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
         }
         .container table{
-            width:100%;
+            width:40%;
             margin-left: auto;
             margin-right: auto;
             border-collapse:collapse;
@@ -48,6 +48,12 @@
         .add-btn{
             margin-right: 30px;
         }
+        .error-message {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -65,25 +71,19 @@
     </div>
 </div>
 <div class="container">
-    <h3>員工管理系統</h3>
+    <h3>新增權限資料</h3>
     <hr>
-    <form th:action="@{/dept/update}" th:object="${dept}" method="post">
+    <form th:action="@{/permission/save}" th:object="${permissionDto}" method="post">
         <table>
             <tr>
-                <th><label for="deptNo">部門編號:</label></th>
-                <td><input type="text" id="deptNo" th:field="*{deptNo}" readonly></td>
+                <th><label for="permissionName">權限名稱</label></th>
+                <td>
+                    <input type="text" id="permissionName" th:field="${permissionDto.permissionName}" minlength="1" maxlength="20" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('permissionName')}" th:errors="*{permissionName}">错误信息</span>
+                </td>
             </tr>
             <tr>
-                <th><label for="dname">部門名稱:</label></th>
-                <td><input type="text" id="dname" th:field="*{dname}" required></td>
-            </tr>
-            <tr>
-                <th><label for="location">地點:</label></th>
-                <td><input type="text" id="location" th:field="*{location}" required></td>
-            </tr>
-
-            <tr>
-                <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">更新資料</button></td>
+                <td colspan="2" style="text-align: center;"><button type="submit" class="submit-btn">新增資料</button></td>
             </tr>
         </table>
     </form>

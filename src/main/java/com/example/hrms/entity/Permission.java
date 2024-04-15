@@ -1,6 +1,9 @@
 package com.example.hrms.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
@@ -12,6 +15,8 @@ public class Permission {
     @Column(name="permission_id", nullable = false)
     private Integer permissionId;
 
+    @NotBlank
+    @Size(min=1, max=20, message="權限名稱的長度必須介於1到20之間")
     @Column(name="permission_name", nullable = false)
     private String permissionName;
 
@@ -22,6 +27,15 @@ public class Permission {
     private LocalDateTime updatedAt;
 
     public Permission() {
+    }
+    @PrePersist
+    protected void onCreate() {
+        updatedAt = createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     public Integer getPermissionId() {
