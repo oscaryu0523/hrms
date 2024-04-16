@@ -6,12 +6,20 @@ import com.example.hrms.entity.Dept;
 import com.example.hrms.entity.Emp;
 import com.example.hrms.repository.DeptRepository;
 import com.example.hrms.repository.EmpRepository;
+import com.example.hrms.search.EmpSearchKey;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +27,8 @@ import java.util.stream.Collectors;
 @Service
 public class EmpService {
     private static final Logger log = LoggerFactory.getLogger(EmpService.class);
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private EmpRepository empRepository;
@@ -83,17 +93,50 @@ public class EmpService {
 
 
 //    員工複合查詢(部門編號 加 關鍵字)
-    public List<Emp>searchEmps(Optional<Integer> deptNo, Optional<String> keyword) {
-        if(deptNo.isPresent() && keyword.isPresent()){
-            return empRepository.findByDept_DeptNoAndEnameContaining(deptNo.get(),keyword.get());
-        }else if(deptNo.isPresent()){
-            return empRepository.findByDept_DeptNo(deptNo.get());
-        }else if(keyword.isPresent()){
-            return empRepository.findByEnameContaining(keyword.get());
-        }else{
-            return empRepository.findAll();
-        }
+public List<EmpDto> searchEmps(EmpSearchKey key, int page, int size) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Emp> query = cb.createQuery(Emp.class);
+    Root<Emp> emp = query.from(Emp.class);
+    List<Predicate> predicates = new ArrayList<>();
+
+    // 檢查是否有部門編號條件
+    if (key.getDeptNo() != null) {
+        predicates.add(cb.equal(emp.get("dept").get("deptNo"), key.getDeptNo()));
     }
+
+    // 檢查是否有關鍵字條件
+    if (key.getKeyword() != null && !key.getKeyword().isEmpty()) {
+        predicates.add(cb.like(emp.get("ename"), "%" + key.getKeyword() + "%"));
+    }
+
+    query.select(emp).where(cb.and(predicates.toArray(new Predicate[0])));
+    return entityManager.createQuery(query)
+            .setFirstResult(page * size)
+            .setMaxResults(size)
+            .getResultList()
+            .stream()
+            .map(this::entityToDto)
+            .collect(Collectors.toList());
+}
+
+    public long countEmps(EmpSearchKey key) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<Emp> emp = query.from(Emp.class);
+        query.select(cb.count(emp));
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (key.getDeptNo() != null) {
+            predicates.add(cb.equal(emp.get("dept").get("deptNo"), key.getDeptNo()));
+        }
+        if (key.getKeyword() != null && !key.getKeyword().isEmpty()) {
+            predicates.add(cb.like(emp.get("ename"), "%" + key.getKeyword() + "%"));
+        }
+
+        query.where(cb.and(predicates.toArray(new Predicate[0])));
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
 //    用員工編號取得一筆員工資料
     public Optional<EmpDto> findById(Integer empNo) {
         return empRepository.findById(empNo)

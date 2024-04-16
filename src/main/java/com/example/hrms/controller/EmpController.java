@@ -3,6 +3,7 @@ package com.example.hrms.controller;
 
 import com.example.hrms.dto.EmpDto;
 import com.example.hrms.entity.Emp;
+import com.example.hrms.search.EmpSearchKey;
 import com.example.hrms.service.EmpService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -106,29 +107,26 @@ public class EmpController {
         return "emp/empAdd";
     }
 
-    //    員工總列表 完成
-    @GetMapping
-    public String getEmps(Model model) {
 
-            model.addAttribute("emps",empService.getEmps());
-            model.addAttribute("depts",empService.getDepts());
-            return "/emp/empList";
+    @GetMapping("/search")
+    public String getOrSearchEmps(@ModelAttribute("key") EmpSearchKey key,
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  Model model) {
+        // 如果前端沒有設定 size，則使用預設值 10
+        int size = key.getSize() != null ? key.getSize() : 10;
+
+        List<EmpDto> emps = empService.searchEmps(key, page, size);
+        long totalItems = empService.countEmps(key);  // 獲取符合條件的總數量
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        model.addAttribute("emps", emps);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("key", key);
+        model.addAttribute("depts", empService.getDepts()); // 假設getDepts()提供所有部門列表
+
+        return "emp/empList";
     }
 
-    //    員工複合查詢  員工列表 完成
-    @PostMapping("/search")
-    public String searchEmps(@RequestParam("deptNo") Optional<Integer> deptNo,
-                             @RequestParam("keyword") Optional<String> keyword,
-                             Model model) {
-        try {
-            model.addAttribute("emps",empService.searchEmps(deptNo, keyword));
-            model.addAttribute("depts",empService.getDepts());
-            return "/emp/empList";
-        }catch(Exception e){
-            log.error("發生意外錯誤", e);
-            model.addAttribute("errorMessage","發生意外錯誤"+e.getMessage());
-        }
-        return "emp/error";
-    }
 
 }
