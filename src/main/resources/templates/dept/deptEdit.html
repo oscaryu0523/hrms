@@ -48,6 +48,12 @@
         .add-btn{
             margin-right: 30px;
         }
+        .error-message {
+            color: red;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +63,7 @@
     </div>
     <div>
         <a th:href="@{/index.html}">首頁</a>
-        <a th:href="@{/emp}">員工管理</a>
+        <a th:href="@{/emp/search}">員工管理</a>
         <a th:href="@{/dept}">部門管理</a>
         <a th:href="@{/permission}">權限管理</a>
         <a th:href="@{/userPermission}">用戶權限管理</a>
@@ -67,19 +73,28 @@
 <div class="container">
     <h3>員工管理系統</h3>
     <hr>
-    <form th:action="@{/dept/update}" th:object="${dept}" method="post">
+    <form th:action="@{/dept/update}" th:object="${deptDto}" method="post">
         <table>
             <tr>
                 <th><label for="deptNo">部門編號:</label></th>
-                <td><input type="text" id="deptNo" th:field="*{deptNo}" readonly></td>
+                <td>
+                    <input type="text" id="deptNo" th:field="*{deptNo}" min="10" max="9999" readonly>
+                    <span class="error-message" th:if="${#fields.hasErrors('deptNo')}" th:errors="*{deptNo}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="dname">部門名稱:</label></th>
-                <td><input type="text" id="dname" th:field="*{dname}" required></td>
+                <td>
+                    <input type="text" id="dname" th:field="*{dname}" maxlength="15" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('dname')}" th:errors="*{dname}">错误信息</span>
+                </td>
             </tr>
             <tr>
                 <th><label for="location">地點:</label></th>
-                <td><input type="text" id="location" th:field="*{location}" required></td>
+                <td>
+                    <input type="text" id="location" th:field="*{location}" maxlength="30" required>
+                    <span class="error-message" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">错误信息</span>
+                </td>
             </tr>
 
             <tr>

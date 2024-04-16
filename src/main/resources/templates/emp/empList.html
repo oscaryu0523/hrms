@@ -65,6 +65,37 @@
     .add-btn{
         margin-right: 30px;
     }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+    }
+
+    .pagination a {
+        padding: 8px 16px;
+        margin: 5px;
+        border: 1px solid #ddd;
+        text-decoration: none;
+        color: #333;
+        background-color: #f4f4f4;
+    }
+
+    .pagination a:hover {
+        background-color: #ddd;
+    }
+
+    .pagination a.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .pagination a.disabled {
+        color: grey;
+        cursor: not-allowed;
+    }
 
 
 </style>
@@ -76,7 +107,7 @@
     </div>
     <div>
         <a th:href="@{/index.html}">首頁</a>
-        <a th:href="@{/emp}">員工管理</a>
+        <a th:href="@{/emp/search}">員工管理</a>
         <a th:href="@{/dept}">部門管理</a>
         <a th:href="@{/permission}">權限管理</a>
         <a th:href="@{/userPermission}">用戶權限管理</a>
@@ -88,19 +119,21 @@
     <h3>員工管理系統</h3>
     <hr>
     <div class="flex-container">
-        <!-- 查詢表單 -->
-        <form method="post" th:action="@{/emp/search}">
-            <!-- 關鍵字查詢 -->
-            <label for="keyword">關鍵字:</label>
-            <input type="text" id="keyword" name="keyword" placeholder="請輸入關鍵字">
-            <!-- 分類篩選 -->
-            <label for="deptNo">部門分類</label>
-            <select id="deptNo" name="deptNo">
+
+        <form th:action="@{/emp/search}" th:object="${key}" method="get">
+            <input type="text" th:field="*{keyword}" placeholder="請輸入關鍵字">
+            <select th:field="*{deptNo}">
                 <option value="">所有部門</option>
-                <option th:each="dept : ${depts}" th:value="${dept.getDeptNo()}" th:text="${dept.getDname()}"></option>
+                <option th:each="dept : ${depts}" th:value="${dept.deptNo}" th:text="${dept.dname}"></option>
             </select>
+            <input type="number" th:field="*{size}" placeholder="每頁顯示數量" min="1" max="10" value="10"> <!-- 新增讓使用者設定每頁數量的輸入框 -->
             <input type="submit" value="查詢">
         </form>
+
+
+
+
+
 
         <!--  -->
 <!--        新增員工-->
@@ -128,7 +161,7 @@
         <tr>
             <td th:text="${emp.empNo}">J927</td>
             <td th:text="${emp.ename}">余銘修</td>
-            <td th:text="${emp.dept.dname}">監控技術部</td>
+            <td th:text="${emp.dname}">監控技術部</td>
             <td th:text="${emp.job}">工程師</td>
             <td th:text="${emp.email}">z5314888@gmail.com</td>
             <td th:text="${emp.phoneNumber}">0226576666</td>
@@ -139,7 +172,26 @@
         </tr>
 
         </tbody>
+
     </table>
+    <div class="pagination">
+        <a th:if="${currentPage > 0}"
+           th:href="@{'/emp/search'(page=${currentPage - 1}, deptNo=${key.deptNo}, keyword=${key.keyword}, size=${key.size})}"
+        >« 上一頁</a>
+
+        <!-- 正確顯示當前頁數和總頁數 -->
+        <span th:text="'頁數：' + (${currentPage + 1}) + ' / ' + ${totalPages}">頁數：1 / 10</span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{'/emp/search'(page=${currentPage + 1}, deptNo=${key.deptNo}, keyword=${key.keyword}, size=${key.size})}"
+        >下一頁 »</a>
+    </div>
+
+
+
+
+
+
 </div>
 </div>
 </body>
