@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>登錄 - 人力資源管理系統</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .login-container {
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- 登入表單 -->
+        <form th:action="@{/user/login}" th:object="${loginDto}" method="post" id="login">
+            <h2>登錄</h2>
+            <div class="form-group">
+                <label for="login_username">用戶名:</label>
+                <input type="text" th:field="${loginDto.username}" id="login_username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="login_password">密碼:</label>
+                <input type="password" th:field="${loginDto.password}" id="login_password" name="password" required>
+            </div>
+            <button type="submit">登入</button>
+            <div class="extra-options">
+                <a href="#" id="register_button">注測 →</a>
+                <a th:href="@{/user/index}">首頁</a>
+                <!-- <a href="/forgot-password">忘記密碼？</a> -->
+            </div>
+        </form>
+        <!-- 註冊表單 -->
+        <form th:action="@{/user/register}" th:object="${registerDto}" method="post" id="register">
+            <h2>註冊</h2>
+            <div class="form-group">
+                <label for="register_username">用戶名:</label>
+                <input type="text" th:field="${registerDto.username}" id="register_username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="register_password">密碼:</label>
+                <input type="password"  th:field="${registerDto.password}" id="register_password" name="password" required>
+            </div>
+            <button type="submit">送出</button>
+            <div class="extra-options">
+                <a href="" id="login_button">登入 →</a>
+                <a th:href="@{/user/index}">首頁</a>
+                <!-- <a href="/forgot-password">忘記密碼？</a> -->
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 默認隱藏註冊表單
+        $("#register").hide();
+        // 點擊註冊顯示註冊表單，隱藏登入表單
+        $("#register_button").on("click",function(e){
+            e.preventDefault();
+            $("#login").hide();
+            $("#register").show();
+        })
+        // 點擊註冊顯示登入表單，隱藏註冊表單
+        $("#login_button").on("click",function(e){
+            e.preventDefault();
+            $("#register").hide();
+            $("#login").show();
+        })
+    </script>
+</body>
+</html>

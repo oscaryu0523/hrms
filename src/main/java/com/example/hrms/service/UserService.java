@@ -1,10 +1,13 @@
 package com.example.hrms.service;
 
+import com.example.hrms.dto.LoginDto;
 import com.example.hrms.dto.PermissionDto;
+import com.example.hrms.dto.RegisterDto;
 import com.example.hrms.dto.UserDto;
 import com.example.hrms.entity.Permission;
 import com.example.hrms.entity.User;
 import com.example.hrms.entity.UserPermission;
+import com.example.hrms.entity.UserPermissionId;
 import com.example.hrms.repository.PermissionRepository;
 import com.example.hrms.repository.UserPermissionRepository;
 import com.example.hrms.repository.UserRepository;
@@ -18,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,50 +43,33 @@ public class UserService {
 
 //    註冊
     @Transactional
-    public void register(UserDto userDto){
-        User user=dtoToUser(userDto);
-        userRepository.save(user);
-//        默認權限
-        UserPermission userPermission = new UserPermission();
-        userPermission.setUser(user);
-        userPermission.setPermission(permissionRepository.findByPermissionName("基本權限").get());
-        userPermissionRepository.save(userPermission);
-
-    }
-
-//  根據用戶名取得一筆用戶資料
-    public UserDto getUserByUsername(String username){
-        User user = userRepository.findOneByUserName(username);
-        if (user == null) {
-            log.warn("該用戶名稱{}不存在",username); // 或者拋出一個適當的異常，表示用戶未找到
+    public UserDto register(RegisterDto registerDto) {
+        User existingUser = userRepository.findOneByUsername(registerDto.getUsername());
+        if (existingUser != null) {
+            throw new IllegalStateException("用戶名已存在");
         }
 
-        List<UserPermission> userPermissionList = userPermissionRepository.findAllByUserId(user.getUserId());
-        UserDto userDto = new UserDto();
-        userDto.setUserId(user.getUserId());
-        userDto.setUsername(user.getUsername());
-        userDto.setPassword(passwordEncoder.encode(user.getPassword()));
+        User newUser = registerDtoToUser(registerDto);
+        User user = userRepository.save(newUser);
 
-        if (!CollectionUtils.isEmpty(userPermissionList)) {
-            List<PermissionDto> permissionDtos = userPermissionList.stream()
-                    .map(UserPermission::getPermission) // 直接獲取 Permission 實體
-                    .distinct() // 去除重複，避免不必要的多次轉換
-                    .map(this::entityToDto)
-                    .collect(Collectors.toList());
-            userDto.setPermissionDtos(permissionDtos);
+        // 添加基本權限
+        assignDefaultPermission(user);
+
+        return userToDto(user);
+    }
+
+
+//    登入驗證
+    // 登入檢查和載入用戶
+    public UserDto loginCheck(LoginDto loginDto) {
+        User user = userRepository.findOneByUsername(loginDto.getUsername());
+        if (user != null && passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            return getUserDetails(user);
         }
-        return userDto;
-
+        return null;
     }
 
 
-
-    private User dtoToUser(UserDto userDto){
-        User user = new User();
-        user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        return user;
-    }
     private UserDto userToDto(User user){
         UserDto userDto = new UserDto();
         userDto.setUserId(user.getUserId());
@@ -95,5 +82,46 @@ public class UserService {
         permissionDto.setPermissionId(permission.getPermissionId());
         permissionDto.setPermissionName(permission.getPermissionName());
         return permissionDto;
+    }
+    private User registerDtoToUser(RegisterDto registerDto){
+        User user = new User();
+        user.setUsername(registerDto.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        return user;
+    }
+
+    // 根據用戶名取得一筆用戶資料，包括權限
+    public UserDto getUserByUsername(String username) {
+        User user = userRepository.findOneByUsername(username);
+        return user != null ? getUserDetails(user) : null;
+    }
+
+    // 輔助方法：獲取用戶的詳細資料和權限
+    private UserDto getUserDetails(User user) {
+        List<PermissionDto> permissions = getPermissionsForUser(user.getUserId());
+        UserDto userDto = userToDto(user);
+        userDto.setPermissionDtos(permissions);
+        return userDto;
+    }
+    // 給新用戶分配默認權限
+    private void assignDefaultPermission(User user) {
+        Permission defaultPermission = permissionRepository.findByPermissionName("基本權限")
+                .orElseThrow(() -> new IllegalStateException("基本權限未找到，無法分配權限"));
+
+        UserPermission userPermission = new UserPermission();
+        userPermission.setUser(user);
+        userPermission.setPermission(defaultPermission);
+        UserPermissionId userPermissionId = new UserPermissionId(user.getUserId(), defaultPermission.getPermissionId());
+        userPermission.setId(userPermissionId);
+        userPermissionRepository.save(userPermission);
+    }
+
+    // 根據用戶ID取得所有權限的 DTO 列表
+    private List<PermissionDto> getPermissionsForUser(Integer userId) {
+        return userPermissionRepository.findAllByUserUserId(userId).stream()
+                .map(UserPermission::getPermission)
+                .distinct()
+                .map(this::entityToDto)
+                .collect(Collectors.toList());
     }
 }
