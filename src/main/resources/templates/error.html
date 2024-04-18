@@ -28,19 +28,7 @@
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div>
-        <h2>神通人力資源管理系統</h2>
-    </div>
-    <div>
-        <a th:href="@{/index.html}">首頁</a>
-        <a th:href="@{/emp/search}">員工管理</a>
-        <a th:href="@{/dept}">部門管理</a>
-        <a th:href="@{/permission}">權限管理</a>
-        <a th:href="@{/userPermission}">用戶權限管理</a>
-        <a th:href="@{/login.html}">登入/註冊</a>
-    </div>
-</div>
+<div th:replace="fragments/navbar :: navbar"></div>
 <div class="container">
     <h3>錯誤！</h3>
     <p class="error-message" th:text="${error}">非常抱歉，您的請求無法處理。請稍後重試或聯繫系統管理員。</p>

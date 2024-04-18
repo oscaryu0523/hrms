@@ -1,5 +1,6 @@
 package com.example.hrms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +8,9 @@ import jakarta.validation.constraints.Size;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name="permission")
 public class Permission {
@@ -25,6 +29,19 @@ public class Permission {
 
     @Column(name="updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public Set<UserPermission> getUserPermissions() {
+        return userPermissions;
+    }
+
+    public void setUserPermissions(Set<UserPermission> userPermissions) {
+        this.userPermissions = userPermissions;
+    }
+
+    @OneToMany(mappedBy = "permission", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<UserPermission> userPermissions = new HashSet<>();
+
 
     public Permission() {
     }

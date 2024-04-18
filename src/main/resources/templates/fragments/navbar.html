@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<div th:fragment="navbar">
+    <div class="navbar">
+        <div>
+            <h2>神通人力資源管理系統</h2>
+        </div>
+        <div>
+            <a th:href="@{/user/index}">首頁</a>
+            <a th:href="@{/emp/search}">員工管理</a>
+            <a th:href="@{/dept}">部門管理</a>
+            <a th:href="@{/permission}">權限管理</a>
+            <a th:href="@{/user/list}">用戶權限管理</a>
+            <div class="right" sec:authorize="isAuthenticated()">
+                <a href="/logout">登出</a>
+            </div>
+            <div class="right" sec:authorize="!isAuthenticated()">
+                <a href="/user/loginPage">登入</a>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

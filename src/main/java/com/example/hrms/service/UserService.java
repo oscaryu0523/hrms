@@ -1,9 +1,6 @@
 package com.example.hrms.service;
 
-import com.example.hrms.dto.LoginDto;
-import com.example.hrms.dto.PermissionDto;
-import com.example.hrms.dto.RegisterDto;
-import com.example.hrms.dto.UserDto;
+import com.example.hrms.dto.*;
 import com.example.hrms.entity.Permission;
 import com.example.hrms.entity.User;
 import com.example.hrms.entity.UserPermission;
@@ -40,6 +37,14 @@ public class UserService {
 
     @Autowired
     private PermissionRepository permissionRepository;
+
+
+  public List<PermissionDto> getAllPermissions() {
+      return permissionRepository.findAll()
+              .stream()
+              .map(this:: permissionToDto)
+              .collect(Collectors.toList());
+  }
 
 //    註冊
     @Transactional
@@ -90,6 +95,24 @@ public class UserService {
         return user;
     }
 
+    public List<UserPermissionDto> getAllUsersWithPermissions() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> {
+                    UserPermissionDto userPermissionDto = new UserPermissionDto();
+                    userPermissionDto.setUserId(user.getUserId());
+                    userPermissionDto.setUsername(user.getUsername());
+                    // 找出所有权限并转换为DTO
+                    List<PermissionDto> permissionDtos = user.getUserPermissions()
+                            .stream()
+                            .map(userPermission -> permissionToDto(userPermission.getPermission()))
+                            .collect(Collectors.toList());
+                    userPermissionDto.setPermissionDtoList(permissionDtos);
+                    return userPermissionDto; // 确保返回 UserPermissionDto 对象
+                })
+                .collect(Collectors.toList());
+    }
+
     // 根據用戶名取得一筆用戶資料，包括權限
     public UserDto getUserByUsername(String username) {
         User user = userRepository.findOneByUsername(username);
@@ -123,5 +146,13 @@ public class UserService {
                 .distinct()
                 .map(this::entityToDto)
                 .collect(Collectors.toList());
+    }
+
+//
+    private PermissionDto permissionToDto(Permission permission) {
+        PermissionDto permissionDto = new PermissionDto();
+        permissionDto.setPermissionId(permission.getPermissionId());
+        permissionDto.setPermissionName(permission.getPermissionName());
+        return permissionDto;
     }
 }
