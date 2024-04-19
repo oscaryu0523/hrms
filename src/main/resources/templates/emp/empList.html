@@ -96,6 +96,9 @@
         color: grey;
         cursor: not-allowed;
     }
+    .none{
+        display: none;
+    }
 
 
 </style>
@@ -137,8 +140,8 @@
             <th>部門</th>
             <th>職位</th>
             <th>電子郵件</th>
-            <th>電話號碼</th>
-            <th>地址</th>
+<!--            <th class="none">電話號碼</th>-->
+<!--            <th class="none">地址</th>-->
             <th>到職日</th>
             <th>薪水</th>
             <th>操作</th>
@@ -152,8 +155,8 @@
             <td th:text="${emp.dname}">監控技術部</td>
             <td th:text="${emp.job}">工程師</td>
             <td th:text="${emp.email}">z5314888@gmail.com</td>
-            <td th:text="${emp.phoneNumber}">0226576666</td>
-            <td th:text="${emp.address}">台北市內湖區堤頂大道二段187號</td>
+<!--            <td  class="none" th:text="${emp.phoneNumber}">0226576666</td>-->
+<!--            <td  class="none" th:text="${emp.address}">台北市內湖區堤頂大道二段187號</td>-->
             <td th:text="${emp.hiredate}"></td>
             <td th:text="${emp.sal}">70000</td>
             <td><a th:href="@{/emp/edit/{empNo}(empNo=${emp.empNo})}">編輯</a><a class="delete-btn" th:href="@{/emp/delete/{empNo}(empNo=${emp.empNo})}">刪除</a></td>

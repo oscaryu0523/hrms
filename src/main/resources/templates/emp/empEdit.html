@@ -80,10 +80,15 @@
 <!--                    <select id="dept" >-->
 <!--                        <option th:each="dept : ${depts}" th:value="${dept.getDeptNo()}" th:text="${dept.getDname()}"></option>-->
 <!--                    </select>-->
-                    <select id="dept" th:field="*{dept.deptNo}">
-                        <option value="" disabled>請選擇部門</option>
-                        <option th:each="dept : ${depts}" th:value="${dept.deptNo}" th:text="${dept.dname}"></option>
+<!--                    <select id="dept" th:field="*{dept.deptNo}">-->
+<!--                        <option value="" disabled>請選擇部門</option>-->
+<!--                        <option  th:each="dept : ${depts}" th:value="${dept.deptNo}" th:text="${dept.dname}" th:selected="${dept.deptNo == empDto.deptNo}"></option>-->
+<!--                    </select>-->
+                    <select id="dept" th:field="*{deptNo}">
+                        <option value="" th:if="${empDto.deptNo == null}">請選擇部門</option>
+                        <option th:each="dept : ${depts}" th:value="${dept.deptNo}" th:text="${dept.dname}" th:selected="${dept.deptNo == empDto.deptNo}"></option>
                     </select>
+
                 </td>
             </tr>
             <tr>
