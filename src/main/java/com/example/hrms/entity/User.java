@@ -1,7 +1,10 @@
 package com.example.hrms.entity;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,6 +27,18 @@ public class User {
 
 	@Column(name="updated_at", nullable = false)
 	private LocalDate updatedAt;
+
+	public Set<UserPermission> getUserPermissions() {
+		return userPermissions;
+	}
+
+	public void setUserPermissions(Set<UserPermission> userPermissions) {
+		this.userPermissions = userPermissions;
+	}
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+	@JsonIgnore
+	private Set<UserPermission> userPermissions = new HashSet<>();
 
 	public User() {
 	}

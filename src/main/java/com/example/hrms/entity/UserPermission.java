@@ -1,5 +1,6 @@
 package com.example.hrms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -14,15 +15,19 @@ public class UserPermission {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("permissionId") // 這個是UserPermissionId中的permissionId
     @JoinColumn(name = "permission_id")
+    @JsonIgnore
     private Permission permission;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public UserPermission() {
     }

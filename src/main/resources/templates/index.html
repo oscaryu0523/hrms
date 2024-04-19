@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+        h1 {
+            color: #333;
+        }
+
+        .container img{
+            display: flex ;
+            justify-content: center;
+            align-items: center;
+            margin-left: 300px;
+        }
+
+
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<!--    <form action="/user/logout" method="post">-->
+<!--        <input type="submit" value="登出">-->
+<!--    </form>-->
+    <div class="container">
+        <img th:src="@{/images/hgfd.png}">
+    </div>
+</body>
+</html>

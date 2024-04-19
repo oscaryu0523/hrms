@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>用戶權限列表</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+    <script>
+        function togglePermission(element) {
+            console.log("執行togglePermission")
+            var userId = element.getAttribute('data-user-id');
+            var permId = element.getAttribute('data-perm-id');
+            var isChecked = element.checked;
+            var token = $("#csrfToken").val();
+
+            // 这里发送 AJAX 请求到服务器以更新权限状态
+            console.log('Updating permission:', userId, permId, isChecked);
+            // 示例 URL 和方法可能需要根据实际应用进行调整
+            fetch('/user/updatePermission', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token  // 將 CSRF token 加入到請求頭中
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    permissionId: permId,
+                    grant: isChecked
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Permission update failed');
+                        element.checked = !isChecked; // 如果更新失败，恢复原状
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating permission:', error);
+                    element.checked = !isChecked; // 如果有错误发生，恢复原状
+                });
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+        h1 {
+            color: #333;
+        }
+        .container table{
+            width:100%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse:collapse;
+            margin-top: 20px;
+        }
+        .container th, td{
+            text-align: center;
+            padding :8px;
+            border:1px solid #ddd;
+        }
+        .container th{
+            background-color: #f2f2f2;
+        }
+        .container a{
+            margin:10px;
+        }
+        .container caption{
+            caption-side: top;
+            font-size: larger;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .flex-container{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .add-btn{
+            margin-right: 30px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+        }
+
+        .pagination a {
+            padding: 8px 16px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .pagination a.disabled {
+            color: grey;
+            cursor: not-allowed;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container">
+    <h3>用戶權限管理系統</h3>
+    <hr>
+    <table>
+        <caption>用戶權限總列表</caption>
+        <thead>
+        <tr>
+            <th>用戶編號</th>
+            <th>用戶名稱</th>
+            <th th:each="perm : ${permissionDtos}" th:text="${perm.permissionName}"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.userId}"></td>
+            <td th:text="${user.username}"></td>
+
+            <td th:each="perm, permStat : ${permissionDtos}" >
+                <label class="switch">
+                    <input type="checkbox" th:checked="${user.permissionsPresence[permStat.index]}" th:id="${'switch-' + user.userId + '-' + perm.permissionId}" th:attr="data-user-id=${user.userId}, data-perm-id=${perm.permissionId}" onchange="togglePermission(this)">
+                    <span class="slider round"></span>
+                </label>
+            </td>
+
+        </tr>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" id="csrfToken"/>
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
