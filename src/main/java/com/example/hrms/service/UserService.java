@@ -63,6 +63,10 @@ public class UserService {
         return userToDto(user);
     }
 
+    public Optional<UserDto> findById(Integer id){
+        return userRepository.findById(id)
+                .map(this::userToDto);
+    }
 
 //    登入驗證
     // 登入檢查和載入用戶
@@ -75,40 +79,23 @@ public class UserService {
     }
 
 
-    private UserDto userToDto(User user){
-        UserDto userDto = new UserDto();
-        userDto.setUserId(user.getUserId());
-        userDto.setUsername(user.getUsername());
-        userDto.setPassword(user.getPassword());
-        return userDto;
-    }
-    private PermissionDto entityToDto(Permission permission) {
-        PermissionDto permissionDto = new PermissionDto();
-        permissionDto.setPermissionId(permission.getPermissionId());
-        permissionDto.setPermissionName(permission.getPermissionName());
-        return permissionDto;
-    }
-    private User registerDtoToUser(RegisterDto registerDto){
-        User user = new User();
-        user.setUsername(registerDto.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        return user;
-    }
-
     public List<UserPermissionDto> getAllUsersWithPermissions() {
+
+        List<Permission> allPermissions = permissionRepository.findAll();
         return userRepository.findAll()
                 .stream()
                 .map(user -> {
                     UserPermissionDto userPermissionDto = new UserPermissionDto();
                     userPermissionDto.setUserId(user.getUserId());
                     userPermissionDto.setUsername(user.getUsername());
-                    // 找出所有权限并转换为DTO
-                    List<PermissionDto> permissionDtos = user.getUserPermissions()
-                            .stream()
-                            .map(userPermission -> permissionToDto(userPermission.getPermission()))
+
+                    List<Boolean> permissionsPresence = allPermissions.stream()
+                            .map(permission -> user.getUserPermissions().stream()
+                                    .anyMatch(userPermission -> userPermission.getPermission().equals(permission)))
                             .collect(Collectors.toList());
-                    userPermissionDto.setPermissionDtoList(permissionDtos);
-                    return userPermissionDto; // 确保返回 UserPermissionDto 对象
+
+                    userPermissionDto.setPermissionsPresence(permissionsPresence);
+                    return userPermissionDto;
                 })
                 .collect(Collectors.toList());
     }
@@ -119,7 +106,7 @@ public class UserService {
         return user != null ? getUserDetails(user) : null;
     }
 
-    // 輔助方法：獲取用戶的詳細資料和權限
+    // 獲取用戶的詳細資料和權限
     private UserDto getUserDetails(User user) {
         List<PermissionDto> permissions = getPermissionsForUser(user.getUserId());
         UserDto userDto = userToDto(user);
@@ -155,4 +142,40 @@ public class UserService {
         permissionDto.setPermissionName(permission.getPermissionName());
         return permissionDto;
     }
+
+    public UserDto updateUser(UserDto userDto) {
+        // 查找用戶並更新，如果不存在則拋出異常
+        System.out.println("進入updateUser方法");
+        System.out.println(userDto.getUserId());
+        User user = userRepository.findById(userDto.getUserId()).orElseThrow(() ->
+                new RuntimeException("用戶不存在，無法更新")
+        );
+
+        // 更新用戶名
+        user.setUsername(userDto.getUsername());
+        userRepository.save(user); // 持久化更改
+        return userToDto(user);
+    }
+
+    private UserDto userToDto(User user){
+        UserDto userDto = new UserDto();
+        userDto.setUserId(user.getUserId());
+        userDto.setUsername(user.getUsername());
+        userDto.setPassword(user.getPassword());
+        return userDto;
+    }
+    private PermissionDto entityToDto(Permission permission) {
+        PermissionDto permissionDto = new PermissionDto();
+        permissionDto.setPermissionId(permission.getPermissionId());
+        permissionDto.setPermissionName(permission.getPermissionName());
+        return permissionDto;
+    }
+    private User registerDtoToUser(RegisterDto registerDto){
+        User user = new User();
+        user.setUsername(registerDto.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        return user;
+    }
+
+
 }

@@ -1,9 +1,12 @@
 package com.example.hrms.service;
 
 import com.example.hrms.dto.PermissionDto;
-import com.example.hrms.entity.Dept;
-import com.example.hrms.entity.Permission;
+import com.example.hrms.dto.UserPermissionChangeDto;
+import com.example.hrms.entity.*;
+import com.example.hrms.repository.DeptRepository;
 import com.example.hrms.repository.PermissionRepository;
+import com.example.hrms.repository.UserPermissionRepository;
+import com.example.hrms.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,12 @@ public class PermissionService {
 
     @Autowired
     private PermissionRepository permissionRepository;
+
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 //    取得所有權限資料
     public List<PermissionDto> getPermissions() {
         return permissionRepository.findAll().stream()
@@ -57,6 +66,37 @@ public class PermissionService {
                     return existingPermission;
                 });
     }
+//    修改一筆員工權限
+    @Transactional
+    public void updatePermissionById(UserPermissionChangeDto userPermissionChangeDto) {
+        System.out.println("進入updatePermissionByI方法");
+        UserPermissionId userPermissionId = new UserPermissionId(userPermissionChangeDto.getUserId(), userPermissionChangeDto.getPermissionId());
+        System.out.println("用戶編號" + userPermissionChangeDto.getUserId());
+        System.out.println("權限編號" + userPermissionChangeDto.getPermissionId());
+
+        Optional<UserPermission> existingPermission = userPermissionRepository.findById(userPermissionId);
+
+        if (existingPermission.isPresent()) {
+            System.out.println(existingPermission + "存在");
+            // 如果存在就刪除
+            userPermissionRepository.deleteById(userPermissionId);
+        } else {
+            System.out.println(existingPermission + "不存在");
+            // 如果不存在就新增
+            User user = userRepository.findById(userPermissionChangeDto.getUserId()).orElse(null);
+            Permission permission = permissionRepository.findById(userPermissionChangeDto.getPermissionId()).orElse(null);
+
+            if (user != null && permission != null) {
+                UserPermission newUserPermission = new UserPermission();
+                newUserPermission.setId(userPermissionId);
+                newUserPermission.setUser(user);
+                newUserPermission.setPermission(permission);
+                userPermissionRepository.save(newUserPermission);
+            }
+        }
+    }
+
+
 //    刪除一筆權限資料
     @Transactional
     public Optional<Boolean> deletePermission(Integer permissionId) {
@@ -77,4 +117,5 @@ public class PermissionService {
         permissionDto.setPermissionName(permission.getPermissionName());
         return permissionDto;
     }
+
 }

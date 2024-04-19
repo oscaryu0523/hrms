@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,7 +34,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // 禁用CSRF保護，CSRF（跨站請求偽造）是一種攻擊方式，但在一些REST API場景下可能會禁用以避免不必要的複雜性。
+//                .csrf(csrf -> csrf.disable()) // 禁用CSRF保護，CSRF（跨站請求偽造）是一種攻擊方式，但在一些REST API場景下可能會禁用以避免不必要的複雜性。
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(authEntryPoint)  // 自定義身份驗證失敗的處理點
                 )
@@ -48,8 +49,8 @@ public class SecurityConfig {
                                 .requestMatchers("/emp/**").hasAuthority("員工管理")  // 員工管理
                         .requestMatchers("/dept/**").hasAuthority("部門管理") // 部門管理
                         .requestMatchers("/permission/**").hasAuthority("權限管理") // 權限管理
-                        .requestMatchers("/userPermission/**").hasAuthority("用戶權限管理") // 用戶權限管理
-                        .requestMatchers("/basic/**").hasAuthority("基本權限")
+                        .requestMatchers("/user/list").hasAuthority("用戶權限管理") // 用戶權限管理
+                        .requestMatchers("/user/basic").hasAuthority("基本權限")
 //                        // 其他所有請求都需要驗證
                         .anyRequest().authenticated() // 其他所有請求都需要驗證
                 )
@@ -85,7 +86,7 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         // 會話過期後的重定向URL。
                         .expiredUrl("/login?expired=true")
-                );
+                ).csrf(Customizer.withDefaults());;
 
         return http.build(); // 建立並返回安全過濾器鏈
 
@@ -112,17 +113,6 @@ public class SecurityConfig {
 
     }
 
-    // Register HttpSessionEventPublisher
-//    @Bean
-//    public static ServletListenerRegistrationBean httpSessionEventPublisher() {
-//        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
-//    }
-
-//    @Bean
-//    public SessionRegistry sessionRegistry() {
-//        SessionRegistry sessionRegistry = new SessionRegistryImpl();
-//        return sessionRegistry;
-//    }
 
 
 

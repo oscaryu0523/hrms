@@ -1,22 +1,30 @@
 package com.example.hrms.controller;
 
 import com.example.hrms.dto.*;
+import com.example.hrms.entity.User;
+import com.example.hrms.entity.UserPermission;
+import com.example.hrms.repository.UserPermissionRepository;
+import com.example.hrms.repository.UserRepository;
+import com.example.hrms.security.CustomUserDetailService;
+import com.example.hrms.service.PermissionService;
 import com.example.hrms.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -30,7 +38,17 @@ public class UserController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-//    註冊後跳轉回首頁
+    @Autowired
+    private PermissionService permissionService;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CustomUserDetailService customUserDetailService;
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
+
+    //    註冊後跳轉回首頁
     @PostMapping("/register")
     public String register(@ModelAttribute RegisterDto registerDto, Model model){
         try {
@@ -49,35 +67,7 @@ public class UserController {
             return "login";
         }
     }
-//////    登入後跳轉回首頁
-//    @PostMapping("/login")
-//    public String login(@ModelAttribute LoginDto loginDto, Model model) {
-//        System.out.println("進入login方法");
-//        if (loginDto != null) {
-//            // 使用 Spring Security 的 AuthenticationManager 來設定用戶的認證資訊
-//            System.out.println("開始認證");
-//            Authentication authenticate = authenticationManager.authenticate(//用於驗證用戶的身分，執行CustomUserDetailService的loadUserByUserName
-//                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())//用於儲存用戶名的認證信息
-//            );
-////            無限遞歸
-//            System.out.println("認證完畢");
-//            SecurityContextHolder.getContext().setAuthentication(authenticate);
-//            System.out.println("成功");
-//            System.out.println("認證信息: " + SecurityContextHolder.getContext().getAuthentication());
-//            System.out.println(authenticate.isAuthenticated());
-//            return "redirect:/user/index"; // 登入成功後跳轉的頁面
-//        } else {
-//            System.out.println("錯誤");
-//            model.addAttribute("error", "Invalid username or password");
-//            return "error"; // 登入失敗，重新載入登入頁面並顯示錯誤訊息
-//        }
-//    }
-//    註冊後跳轉回首頁
 
-//    @PostMapping("/logout")
-//    public String logout() {
-//        return "redirect:/user/loginPage"; // 登出後重定向到登入頁面
-//    }
 
 //    登入頁面
     @GetMapping("/loginPage")
@@ -104,5 +94,81 @@ public class UserController {
         model.addAttribute("users",users);
 //        取得所有員工列表
         return "/user/userList";
+    }
+
+    @PostMapping("/updatePermission")
+    public ResponseEntity<?> updatePermission(@RequestBody UserPermissionChangeDto userPermissionChangeDto, Model model){
+        log.info("開始執行權限更新：{}", userPermissionChangeDto);
+        try {
+            permissionService.updatePermissionById(userPermissionChangeDto);
+
+            return userService.findById(userPermissionChangeDto.getUserId())
+                    .map(userDto -> {
+                        updateAuthentication(userDto);
+                        List<UserPermission> userPermissions = userPermissionRepository.findAllByUserUserId(userDto.getUserId());
+                        System.out.println("最新權限");
+                        for (UserPermission userPermission: userPermissions){
+                            System.out.println(userPermission.getPermission().getPermissionName());
+                        }
+                        log.info("權限更新成功，用戶ID: {}", userDto.getUserId());
+                        return ResponseEntity.ok().body(Map.of("success", true, "message", "權限更新成功"));
+                    })
+                    .orElseGet(() -> {
+                        log.error("用戶未找到, ID: {}", userPermissionChangeDto.getUserId());
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "用戶未找到"));
+                    });
+        } catch (Exception e) {
+            log.error("權限更新失敗", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", "權限更新失敗: " + e.getMessage()));
+        }
+    }
+//    取得當前用戶資料
+    @GetMapping("/basic")
+    public String getUser(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated()){
+            Object principal = authentication.getPrincipal();
+            if(principal instanceof UserDetails){
+                UserDetails userDetails = (UserDetails) principal;
+                UserDto userDto = userService.getUserByUsername(userDetails.getUsername());
+                model.addAttribute("user", userDetails);
+                model.addAttribute("userId", userDto.getUserId());
+            }
+            return "/user/basic";
+
+        } else {
+            model.addAttribute("error", "no authenticated user found");
+            return "/error";
+        }
+    }
+//    更新用戶資料
+    @PostMapping("/update")
+    public String updateUser(@ModelAttribute UserDto userDto, Model model){
+        try {
+            UserDto updatedUser = userService.updateUser(userDto); // 假設有一個更新用戶的方法
+            log.info("用戶資料已更新");
+
+            // 更新 SecurityContextHolder 中的 UserDetails
+            updateAuthentication(updatedUser);
+
+
+            model.addAttribute("message", "用戶資料已更新");
+
+            return "redirect:/user/basic";
+        } catch (Exception e) {
+            model.addAttribute("error", "更新失敗: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    private void updateAuthentication(UserDto userDto){
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails newUserDetails = customUserDetailService.loadUserByUsername(userDto.getUsername());
+
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                newUserDetails, null, newUserDetails.getAuthorities());
+
+        newAuth.setDetails(currentAuth.getDetails());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 }

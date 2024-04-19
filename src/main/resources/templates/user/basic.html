@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>用戶基本資料</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}"/>
+    <style>
+        body {
+            text-align: center; /* 整頁內容置中 */
+        }
+        .container {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: inline-block;
+            text-align: left; /* 使容器內的文字左對齊 */
+        }
+        h1 {
+            color: #333;
+            font-size: 24px; /* 放大標題文字 */
+        }
+        p {
+            font-size: 18px; /* 放大段落文字 */
+            color: #666;
+            margin: 20px 0; /* 調整間距 */
+        }
+        input[type="text"] {
+            font-size: 16px;
+            padding: 5px;
+            margin-right: 10px;
+            width:70px;
+        }
+        a {
+            font-size: 16px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container">
+    <h1>用戶基本資料</h1>
+
+    <!-- 顯示錯誤訊息 -->
+    <div th:if="${error}" th:text="${error}">
+        No authenticated user found.
+    </div>
+
+    <!-- 如果有用戶資料，顯示用戶名和權限 -->
+    <div th:if="${user}">
+        <form th:action="@{/user/update}" th:method="post">
+            <input type="hidden" th:value="${userId}" name="userId"/>
+
+            <p>用戶名稱: <input type="text" th:value="${user.username}" name="username" /></p>
+            <p>權限:</p>
+            <ul>
+                <li th:each="authority : ${user.authorities}" th:text="${authority.authority}"></li>
+            </ul>
+            <button type="submit">保存</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
