@@ -21,3 +21,10 @@
 .right{
     display: inline-block;
 }
+.title{
+    margin-left: 30px;
+    text-decoration: none;
+    font-size: 25px;
+    font-weight:bold;
+    color:black !important;
+}

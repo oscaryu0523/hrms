@@ -1,6 +1,7 @@
 package com.example.hrms.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +24,10 @@ public class User {
 	private String password;
 
 	@Column(name="created_at", nullable = false)
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@Column(name="updated_at", nullable = false)
-	private LocalDate updatedAt;
+	private LocalDateTime updatedAt;
 
 	public Set<UserPermission> getUserPermissions() {
 		return userPermissions;
@@ -39,6 +40,16 @@ public class User {
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
 	@JsonIgnore
 	private Set<UserPermission> userPermissions = new HashSet<>();
+
+	@PrePersist
+	protected void onCreate() {
+		updatedAt = createdAt = LocalDateTime.now();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 
 	public User() {
 	}
@@ -67,19 +78,19 @@ public class User {
 		this.password = password;
 	}
 
-	public LocalDate getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDate createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public LocalDate getUpdatedAt() {
+	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(LocalDate updatedAt) {
+	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 

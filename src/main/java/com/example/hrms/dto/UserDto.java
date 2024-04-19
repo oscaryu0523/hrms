@@ -10,7 +10,8 @@ import java.util.List;
 
 public class UserDto {
     private Integer userId;
-
+    @NotBlank
+    @Size(max=20, message="用戶名稱的長度必須介於1到20之間")
     private String username;
 
     private String password;

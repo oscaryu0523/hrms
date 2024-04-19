@@ -58,7 +58,7 @@
         <form th:action="@{/user/update}" th:method="post">
             <input type="hidden" th:value="${userId}" name="userId"/>
 
-            <p>用戶名稱: <input type="text" th:value="${user.username}" name="username" /></p>
+            <p>用戶名稱: <input type="text" th:value="${user.username}" name="username" maxlength="20" required /></p>
             <p>權限:</p>
             <ul>
                 <li th:each="authority : ${user.authorities}" th:text="${authority.authority}"></li>
