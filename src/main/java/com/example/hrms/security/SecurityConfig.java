@@ -1,10 +1,14 @@
 package com.example.hrms.security;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -17,8 +21,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @Configuration
@@ -36,7 +46,29 @@ public class SecurityConfig {
         http
 //                .csrf(csrf -> csrf.disable()) // 禁用CSRF保護，CSRF（跨站請求偽造）是一種攻擊方式，但在一些REST API場景下可能會禁用以避免不必要的複雜性。
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(authEntryPoint)  // 自定義身份驗證失敗的處理點
+                        .authenticationEntryPoint(authEntryPoint)//用戶為認證時執行的操作
+                        .accessDeniedHandler(new AccessDeniedHandler() {
+                            @Override
+                            public void handle(HttpServletRequest request, HttpServletResponse response,
+                                               AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                                // 用戶已認證，但權限不足時執行的操作
+                                try {
+                                    String refererHeader = request.getHeader("Referer");
+                                    String redirectUrl = "/user/index";  // Default redirect
+
+                                    if (refererHeader != null) {
+                                        // Remove query parameters
+                                        URI uri = new URI(refererHeader);
+                                        redirectUrl = uri.getPath();
+                                    }
+                                    String encodedMessage = URLEncoder.encode("權限不足", StandardCharsets.UTF_8.toString());
+                                    response.sendRedirect(redirectUrl + "?error=" + encodedMessage); // 重定向並添加錯誤信息
+                                } catch (URISyntaxException e) {
+                                    // Log error or handle syntax error
+                                    response.sendRedirect("/user/index");
+                                }
+                            }
+                        })// 自定義身份驗證失敗的處理點
                 )
                 // 配置URL的安全訪問規則：
                 .authorizeHttpRequests(authorize -> authorize
