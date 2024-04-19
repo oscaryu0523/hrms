@@ -34,7 +34,7 @@ public class EmpController {
         return empService.deleteEmp(empNo)
                 .map(e -> {
                     log.info("Deleted employee with ID: {}", empNo);
-                    return "redirect:/emp";
+                    return "redirect:/emp/search";
                 }) // 如果存在且成功刪除，重導至員工列表頁
                 .orElse("error"); // 如果無法刪除（例如員工不存在），則返回錯誤頁面
     }
@@ -47,7 +47,7 @@ public class EmpController {
             return "/emp/empEdit";
         }
         if(empService.updateEmp(empDto).isPresent()){
-            return "redirect:/emp";
+            return "redirect:/emp/search";
         }
         model.addAttribute("error","更新失敗或郵箱已被使用");
         return  "error";
@@ -89,7 +89,7 @@ public class EmpController {
                 .map( emp -> {
                     log.info("Created new employee with ID: {}", emp.getEmpNo());
                     System.out.println("那裏");
-                    return "redirect:/emp";
+                    return "redirect:/emp/search";
                 })
                 .orElseGet(() -> {
                     model.addAttribute("error","存在重複的電子郵件或部門不存在，請檢查");
