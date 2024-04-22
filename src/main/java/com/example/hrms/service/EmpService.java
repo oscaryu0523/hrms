@@ -106,7 +106,28 @@ public List<EmpDto> searchEmps(EmpSearchKey key, int page, int size) {
 
     // 檢查是否有關鍵字條件
     if (key.getKeyword() != null && !key.getKeyword().isEmpty()) {
-        predicates.add(cb.like(emp.get("ename"), "%" + key.getKeyword() + "%"));
+        Predicate keywordPredicates = cb.or(
+                cb.like(emp.get("ename"), "%" + key.getKeyword() + "%"),
+                cb.like(emp.get("job"), "%" + key.getKeyword() + "%"),
+                cb.like(emp.get("email"), "%" + key.getKeyword() + "%")
+        );
+        predicates.add(keywordPredicates);
+    }
+
+    // 檢查是否只有開始日期條件
+    if (key.getStartDate() != null && key.getEndDate() == null) {
+        // 如果開始日期不為空，則添加大於等於開始日期的條件
+        predicates.add(cb.greaterThanOrEqualTo(emp.get("hiredate"), key.getStartDate()));
+    }
+
+    // 檢查是否只有結束日期條件
+    if (key.getEndDate() != null && key.getStartDate() == null) {
+        // 如果結束日期不為空，則添加小於等於結束日期的條件
+        predicates.add(cb.lessThanOrEqualTo(emp.get("hiredate"), key.getEndDate()));
+    }
+    // 檢查是否有開始日期及結束日期條件
+    if(key.getEndDate() != null && key.getStartDate() != null){
+        predicates.add(cb.between(emp.get("hiredate"), key.getStartDate(), key.getEndDate()));
     }
 
     query.select(emp).where(cb.and(predicates.toArray(new Predicate[0])));
