@@ -101,12 +101,16 @@
     .none{
         display: none;
     }
+    .flex-container form span{
+        margin-left: 10px;
+    }
 
 
 </style>
 </head>
 <body>
-<div th:replace="fragments/navbar :: navbar"></div>
+<!--<div th:replace="fragments/navbar :: navbar"></div>-->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <h3>員工管理系統</h3>
@@ -114,12 +118,21 @@
     <div class="flex-container">
 
         <form th:action="@{/emp/search}" th:object="${key}" method="get">
+            <span>關鍵字</span>
             <input type="text" th:field="*{keyword}" placeholder="請輸入關鍵字">
+            <span>部門</span>
             <select th:field="*{deptNo}">
                 <option value="">所有部門</option>
                 <option th:each="dept : ${depts}" th:value="${dept.deptNo}" th:text="${dept.dname}"></option>
             </select>
+            <span>每頁顯示筆數</span>
             <input type="number" th:field="*{size}" placeholder="每頁顯示數量" min="1" max="10" value="10"> <!-- 新增讓使用者設定每頁數量的輸入框 -->
+
+            <span>開始日期</span>
+            <input type="date" th:field="*{startDate}">
+            <span>結束日期</span>
+            <input type="date" th:field="*{endDate}">
+
             <input type="submit" value="查詢">
         </form>
 

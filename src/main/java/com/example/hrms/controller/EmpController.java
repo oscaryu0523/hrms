@@ -112,13 +112,26 @@ public class EmpController {
     public String getOrSearchEmps(@ModelAttribute("key") EmpSearchKey key,
                                   @RequestParam(value = "page", defaultValue = "0") int page,
                                   Model model) {
+        System.out.println("進入controller");
         // 如果前端沒有設定 size，則使用預設值 10
         int size = key.getSize() != null ? key.getSize() : 10;
 
+        // 處理日期欄位的空值情況
+        if (key.getStartDate() == null ) {
+            key.setStartDate(null);
+        }
+        if (key.getEndDate() == null) {
+            key.setEndDate(null);
+        }
+        System.out.println(key.getStartDate());
+        System.out.println(key.getEndDate());
+
+
+        System.out.println("查詢前");
         List<EmpDto> emps = empService.searchEmps(key, page, size);
         long totalItems = empService.countEmps(key);  // 獲取符合條件的總數量
         int totalPages = (int) Math.ceil((double) totalItems / size);
-
+        System.out.println("查詢完畢");
         model.addAttribute("emps", emps);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", page);
